@@ -1,0 +1,16 @@
+# Optional Postgres for local or production-like testing.
+# Set DATABASE_URL, e.g. postgresql+psycopg://mbp:mbp@localhost:5432/mbp
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mbp
+      POSTGRES_PASSWORD: mbp
+      POSTGRES_DB: mbp
+    ports:
+      - "5432:5432"
+    volumes:
+      - mbp_pg:/var/lib/postgresql/data
+
+volumes:
+  mbp_pg:

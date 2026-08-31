@@ -1,0 +1,113 @@
+openapi: 3.0.3
+info:
+  title: MBP Edge ingest API
+  version: "2.0"
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/edge/v1/readings:
+    post:
+      summary: Ingest meter reading (v1)
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Bearer API key
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: x-correlation-id
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EdgeReading"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EdgeIngestResponse"
+  /api/edge/v2/readings:
+    post:
+      summary: Ingest meter reading (v2)
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: x-correlation-id
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EdgeReading"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EdgeIngestResponseV2"
+components:
+  schemas:
+    EdgeReading:
+      type: object
+      required: [siteId, berthLineId, deliveryId, observedAt]
+      properties:
+        siteId: { type: string }
+        berthLineId: { type: string }
+        deliveryId: { type: string }
+        observedAt: { type: string, format: date-time }
+        cumulativeMassKg: { type: string }
+        cumulativeVolumeM3: { type: string }
+        massKg: { type: string }
+        massRateKgs: { type: string }
+        volumeM3: { type: string }
+        volumeRateM3s: { type: string }
+        tempC: { type: string }
+        densityKgM3: { type: string }
+        signalQuality:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: JSON number only (not a string); omit if unknown.
+        pressureBar: { type: string }
+        tankLevelM: { type: string }
+        pumpRunning: { type: boolean }
+        rawPayload: { type: object, additionalProperties: true }
+    EdgeIngestResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        correlationId: { type: string }
+        duplicate: { type: boolean }
+        apiVersion: { type: string, enum: [v1] }
+    EdgeIngestResponseV2:
+      type: object
+      properties:
+        ok: { type: boolean }
+        correlationId: { type: string }
+        duplicate: { type: boolean }
+        apiVersion: { type: string, enum: [v2] }
